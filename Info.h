@@ -1,7 +1,9 @@
 //C Standarts
 http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf
+https://docs.particle.io/reference/device-os/api/introduction/getting-started/
 
-// https://docs.particle.io/reference/device-os/api/introduction/getting-started/
+Use Main Branch for Home PC
+Use Master for WorkPC
 
 git add .
 git commit -m "Comment"

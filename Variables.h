@@ -99,6 +99,17 @@ static const uint8_t Load_Fan_TorqSpeed[100]={
 85,87,89,90,91,93,95,97,99,100,// %100 speed full load torque
 };
 
+static const uint32_t* Loads[6]={
+//(uint32_t*)
+(uint32_t*) &Load_Induction_Motor_TorqSpeed,  
+(uint32_t*) &Load_Pump_TorqSpeed, 
+(uint32_t*) &Load_Conveyor_TorqSpeed, 
+(uint32_t*) &Load_Compressor_TorqSpeed,  
+(uint32_t*) &Load_Crusher_TorqSpeed, 
+(uint32_t*) &Load_Fan_TorqSpeed, 
+};
+
+
 struct PotValues
 {
     uint16_t Adc;

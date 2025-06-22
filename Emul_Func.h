@@ -4,7 +4,7 @@
 //  Voltage Duty Cycle is used for a variable Grid Voltage "Vrms",
 // Create the required Thyristor Zero Cross signal for the next function  
 
-bool Create_Grid_Voltage(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
+bool Generate_Grid_Voltage(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
    if(!(p->GridEnable_UI)){
     p->IO_Voltage = OFF;
     return OFF;
@@ -35,7 +35,7 @@ bool Create_Grid_Voltage(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
 }
   // Find out final Thyristor Firing  Angle // timing values in this function are relative not based on Grid or current phase shifts
  
- void  Create_Simulated_Thyristor_Firing_Angle(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
+ void  Generate_Simulated_Thyristor_Firing_Angle(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
 
  // p->Thyristor_Firing_Angle = p->Thyristor_Sim_Firing_Angle;
   uint16_t Fire_Init = PhaseShift ;
@@ -90,7 +90,7 @@ bool Create_Grid_Voltage(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
 // Afterwards Create Chopped Currents based on the Actual Grid Current, Thyristor Firing angle and Current Duty Cycle.
 // Current Duty Cycle is used to create variable current "Irms" to emulate variable currents or loads.
 
-void Create_Simulated_Chopped_Current(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
+void Generate_Simulated_Chopped_Current(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
   uint8_t I_Chop_DutyCycle = (uint8_t)(((Half_Cycle_Time - p->Thyristor_Sim_Firing_Angle) *p->I_Chopped_DutyCycle) / 100);
    if(I_Chop_DutyCycle < 4) I_Chop_DutyCycle = 4; // min %4 
 
@@ -131,7 +131,7 @@ void Create_Simulated_Chopped_Current(struct Grid_Thy_I_Chopped_Var *p, uint16_t
 
 }
 
-bool Create_Chopped_Current(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
+bool Generate_Chopped_Current(struct Grid_Thy_I_Chopped_Var *p, uint16_t PhaseShift){
   uint8_t I_Chop_DutyCycle = (uint8_t)(((Half_Cycle_Time - p->Thyristor_Sim_Firing_Angle) *p->I_Chopped_DutyCycle) / 100);
    if(I_Chop_DutyCycle < 4) I_Chop_DutyCycle = 4; // min %4 
 

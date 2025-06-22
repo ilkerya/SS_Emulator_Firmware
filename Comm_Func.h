@@ -48,6 +48,8 @@ void PSR_StateFind(void){
 // interrupt vector
 
   void STM32_IntVectorT1(){
+    //  digitalWrite(TIME_DEBUG_OUT_PIN, !digitalRead(TIME_DEBUG_OUT_PIN));
+     ///   digitalWrite(TIME_DEBUG_OUT_PIN, OFF); // active time check in interrupt
 
 
     Loop.Task_10msec = ON; 
@@ -59,7 +61,7 @@ void PSR_StateFind(void){
     Loop.IntTimer_1 ++;
     Loop.IntTimer_2 ++;
     Loop.IntTimer_5 ++;
-
+  
 
     if(Loop.IntTimer_20m >= TIME_20MSEC){
       Loop.IntTimer_20m = 0;
@@ -73,11 +75,14 @@ void PSR_StateFind(void){
          // Key.Adc  = analogRead(KEY_ANALOG_IN); 
           Key_Functions_Analog();   
           #endif 
+               digitalWrite(TIME_DEBUG_OUT_PIN, !digitalRead(TIME_DEBUG_OUT_PIN));
+          // DAQ_Send_Data();
     }
     if(Loop.IntTimer_50m >= TIME_50MSEC){
       Loop.IntTimer_50m = 0;
       Loop.Task_50msec = ON;     
-      DAQ_Send_Data();
+
+    
     }
     if(Loop.IntTimer_100m >= TIME_100MSEC){
       Loop.IntTimer_100m = 0;
@@ -122,19 +127,19 @@ void Common_Loop(){
   }
   if (Loop.Task_20msec) {
     Loop.Task_20msec = OFF;
-
+      
      
   }
   if (Loop.Task_50msec) {
     Loop.Task_50msec = OFF;
 
-  
+       SerialPortRx_UI();  
 
   }
   if (Loop.Task_100msec) {
     Loop.Task_100msec = OFF;
 
-      SerialPortRx_UI();  
+      
 
     PSR_StateFind();
 

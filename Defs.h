@@ -32,7 +32,7 @@
 
 
  #define LOGIC_ANALYSER_DEBUG 
- #define DEBUG_MODE
+
 
 //const uint16_t R_VoltIO = PE14;
 //const uint16_t S_VoltIO = PE11;
@@ -161,9 +161,9 @@
 #define CRC_BYTES 2
 #define DEFAULT_PREAMBLE = 0XAAAA;
 #define DEFAULT_CRC_INIT 0XAAAA; // preamble+length 4 byte + 4 byte
-#define DEFAULT_TX_LENGTH  60//26 // The whole packet including preamble and CRC
-#define DEFAULT_RX_LENGTH  60//26 // The whole packet including preamble and CRC
- 
+#define DEFAULT_TX_LENGTH  32//26 // The whole packet including preamble and CRC
+#define DEFAULT_RX_LENGTH  16//////26 // The whole packet including preamble and CRC
+ // #define DEBUG_MODE_COMM
 // 001BC5067010E312
 /*
 typedef  byte               uint8;

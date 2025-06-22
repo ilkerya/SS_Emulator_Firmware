@@ -12,6 +12,21 @@ char* CopyFlashToRam(const char* p){
    //  Serial.print(F("Dispbuffer : ")); Serial.println(Dispbuffer);
     return Dispbuffer;
 }
+
+uint8_t Arraybuffer[100];  // make sure this is large enough for the largest string it must hold
+uint8_t* CopyFlashArrayToRam(const uint8_t* p){
+  //length.Dispbuffer; 
+    for (uint8_t i = 0; i < 100; i++) {
+      Arraybuffer[i] = 0;
+    }
+    for (uint8_t i = 0; i < strlen_P(p); i++) {
+       uint8_t c = pgm_read_byte_near(p + i);
+      Arraybuffer[i] = c;
+      //Serial.print(c);
+    }
+   //  Serial.print(F("Dispbuffer : ")); Serial.println(Dispbuffer);
+    return Arraybuffer;
+}
 void UpdateDisplayBuffer(void){  
 
 //    Display_Line1 = Str_Date + "   ";

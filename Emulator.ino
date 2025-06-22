@@ -67,11 +67,11 @@ int STM32_addr = 0;
 STM32_ISR_Timer ISR_Timer;
 
 // Init STM32 timer TIM1
-
+uint16_t DAQ_Counter = 0;
 void TimerHandler()  // 50 uS
 {
   ISR_Timer.run();
-  digitalWrite(TIME_DEBUG_OUT_PIN, ON); // active time check in interrupt 
+ // digitalWrite(TIME_DEBUG_OUT_PIN, ON); // active time check in interrupt 
 //#define PSR_
    #define PSTX_   //
 
@@ -81,27 +81,27 @@ void TimerHandler()  // 50 uS
 
 #if (defined PSR_ || defined PSTX_)  // 2 phase for PSR
  // R Phase
-  digitalWrite(R_VOLTAGE_CREATE_PIN, Create_Grid_Voltage(&R_Phase, R_PHASE_0)); // create grid Voltage
+  digitalWrite(R_VOLTAGE_CREATE_PIN, Generate_Grid_Voltage(&R_Phase, R_PHASE_0)); // create grid Voltage
   Detect_Thyristor_Firing_Angle(&R_Phase, R_PSR_Thy_FireDet_IO);   // Detect Fring Angle From PSR or PSTX
-  Create_Simulated_Thyristor_Firing_Angle(&R_Phase,R_PHASE_0);  // Create Simulated Firing Angles with respect to PC UI
-  digitalWrite(R_PSR_CURRENT_CREATE_PIN, Create_Chopped_Current(&R_Phase, R_PHASE_0)); // Creata current signals according to PSTX firing
-  Create_Simulated_Chopped_Current(&R_Phase, R_PHASE_0);  // Create Simulated Current Signals from the simulated Firing Signals
+  Generate_Simulated_Thyristor_Firing_Angle(&R_Phase,R_PHASE_0);  // Create Simulated Firing Angles with respect to PC UI
+  digitalWrite(R_PSR_CURRENT_CREATE_PIN, Generate_Chopped_Current(&R_Phase, R_PHASE_0)); // Creata current signals according to PSTX firing
+  Generate_Simulated_Chopped_Current(&R_Phase, R_PHASE_0);  // Create Simulated Current Signals from the simulated Firing Signals
   // S Phase
-  digitalWrite(S_VOLTAGE_CREATE_PIN, Create_Grid_Voltage(&S_Phase, S_PHASE_120));
+  digitalWrite(S_VOLTAGE_CREATE_PIN, Generate_Grid_Voltage(&S_Phase, S_PHASE_120));
   Detect_Thyristor_Firing_Angle(&S_Phase, S_PSR_Thy_FireDet_IO);
-  Create_Simulated_Thyristor_Firing_Angle(&S_Phase, S_PHASE_120); 
-  digitalWrite(S_PSR_CURRENT_CREATE_PIN, Create_Chopped_Current(&S_Phase, S_PHASE_120));
-  Create_Simulated_Chopped_Current(&S_Phase, S_PHASE_120);
+  Generate_Simulated_Thyristor_Firing_Angle(&S_Phase, S_PHASE_120); 
+  digitalWrite(S_PSR_CURRENT_CREATE_PIN, Generate_Chopped_Current(&S_Phase, S_PHASE_120));
+  Generate_Simulated_Chopped_Current(&S_Phase, S_PHASE_120);
 
 #endif
 
 #if (defined PSTX_)  // FULL 3 Phase for PSTX
   // T Phase
-  digitalWrite(T_VOLTAGE_CREATE_PIN, Create_Grid_Voltage(&T_Phase, T_PHASE_240));
+  digitalWrite(T_VOLTAGE_CREATE_PIN, Generate_Grid_Voltage(&T_Phase, T_PHASE_240));
   Detect_Thyristor_Firing_Angle(&T_Phase, T_PSR_Thy_FireDet_IO);
-  Create_Simulated_Thyristor_Firing_Angle(&T_Phase, T_PHASE_240);  
-  digitalWrite(T_PSR_CURRENT_CREATE_PIN, Create_Chopped_Current(&T_Phase, T_PHASE_240));
-  Create_Simulated_Chopped_Current(&T_Phase, T_PHASE_240);
+  Generate_Simulated_Thyristor_Firing_Angle(&T_Phase, T_PHASE_240);  
+  digitalWrite(T_PSR_CURRENT_CREATE_PIN, Generate_Chopped_Current(&T_Phase, T_PHASE_240));
+  Generate_Simulated_Chopped_Current(&T_Phase, T_PHASE_240);
 #endif
 
 
@@ -163,7 +163,11 @@ HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, GPIO_PIN_RESET);
   
  //  HAL_GPIO_Init (GPIOC, GPIO_MODE_OUTPUT_PP *GPIO_Init);
 #endif
-
+  DAQ_Counter++;
+  if(DAQ_Counter>400){ //50*400 = 20000 us 20 mssec
+    DAQ_Counter = 0;
+    DAQ_Send_Data();
+  }
 
   //#ifdef PSR_
   if (UI_Command.StartStop) {
@@ -176,7 +180,7 @@ HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, GPIO_PIN_RESET);
   else PSR.Rled_State = 0;
   //#endif
 
-   digitalWrite(TIME_DEBUG_OUT_PIN, OFF); // active time check in interrupt 
+ //  digitalWrite(TIME_DEBUG_OUT_PIN, OFF); // active time check in interrupt 
 }
 
 
@@ -224,6 +228,68 @@ void setup() {
     Serial.println(F("Can't set ITimer. Select another freq. or timer"));
   ISR_Timer.setInterval(TIMER_INTERVAL_10_MS, STM32_IntVectorT1);
 #endif
+
+    static const char Disp_MENU1_SUB1[] PROGMEM = "LOG START            "; 
+
+    String str = CopyFlashToRam(Disp_MENU1);
+ //   str = (char*)CopyFlashArrayToRam(Load_Fan_TorqSpeed);  // (const char*)
+ //   Serial.println(str);
+
+   Serial.print("Load_Induction_Motor_TorqSpeed Adress :");
+    Serial.println((long)&Load_Induction_Motor_TorqSpeed[0], HEX);
+    Serial.print("Loads[0] content (holding Load_Induction_Motor_TorqSpeed Adress:");  
+    Serial.println((long)Loads[0], HEX); 
+    Serial.print("Load_Induction_Motor_TorqSpeed[0] content ");
+    Serial.println(Load_Induction_Motor_TorqSpeed[0]);
+
+
+    Serial.print("Load_Pump_TorqSpeed Adress :");
+    Serial.println((long)&Load_Pump_TorqSpeed[0], HEX);
+    Serial.print("Loads[1] content (holding Load_Pump_TorqSpeed Adress:");  
+    Serial.println((long)Loads[1], HEX); 
+    Serial.print("Load_Pump_TorqSpeed[0] content ");
+    Serial.println(Load_Pump_TorqSpeed[0]);
+
+
+
+   Serial.print("Load_Conveyor_TorqSpeed Adress :");
+    Serial.println((long)&Load_Conveyor_TorqSpeed[0], HEX);
+    Serial.print("Loads[2] content (Load_Conveyor_TorqSpeed Load_Fan_TorqSpeed Adress:");  
+    Serial.println((long)Loads[2], HEX); 
+    Serial.print("Load_Conveyor_TorqSpeed[0] content ");
+    Serial.println(Load_Conveyor_TorqSpeed[0]);
+
+   Serial.print("Load_Compressor_TorqSpeed Adress :");
+    Serial.println((long)&Load_Compressor_TorqSpeed[0], HEX);
+    Serial.print("Loads[3] content (holding Load_Compressor_TorqSpeed Adress:");  
+    Serial.println((long)Loads[3], HEX); 
+    Serial.print("Load_Compressor_TorqSpeed[0] content ");
+    Serial.println(Load_Compressor_TorqSpeed[0]);
+
+    Serial.print("Load_Crusher_TorqSpeed Adress :");
+    Serial.println((long)&Load_Crusher_TorqSpeed[0], HEX);
+    Serial.print("Loads[4] content (holding Load_Crusher_TorqSpeed Adress:");  
+    Serial.println((long)Loads[4], HEX); 
+    Serial.print("Load_Crusher_TorqSpeed[0] content ");
+    Serial.println(Load_Crusher_TorqSpeed[0]); 
+
+    Serial.print("Load_Fan_TorqSpeed Adress :");
+    Serial.println((long)&Load_Fan_TorqSpeed[0], HEX);
+    Serial.print("Loads[5] content (holding Load_Fan_TorqSpeed Adress:");  
+    Serial.println((long)Loads[5], HEX); 
+    Serial.print("Load_Fan_TorqSpeed[0] content ");
+    Serial.println(Load_Fan_TorqSpeed[0]);
+
+
+
+  //  Serial.println(Load_Fan_TorqSpeed[0]);
+
+  //   Serial.println((long)&Loads[5], HEX);   
+ //    Serial.println((long)Loads[5], HEX); 
+
+//     Serial.println(Loads[5], HEX);   
+  //  Serial.print(F("&Load_Induction_Motor_TorqSpeed "));Serial.println(Load_Induction_Motor_TorqSpeed)
+
 }
 // the loop function runs over and over again forever
 void loop() {

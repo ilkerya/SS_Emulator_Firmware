@@ -17,46 +17,11 @@ struct DAQ{
   float Temperature = 25;
 }DAQ;
 
-void DAQ_Convert_IMU(void){
-/*
-      int32_t Temp;  
-      Accelometer.x_Mantissa = (int8_t) Accelometer.x; 
-      Temp = (int32_t)(1000 * Accelometer.x);    
-      Temp %=  1000;
-      Temp = abs(Temp);
-      Accelometer.x_Exponient = (int16_t)Temp;
 
-      Accelometer.y_Mantissa = (int8_t) Accelometer.y; 
-      Temp = (int32_t)(1000 * Accelometer.y);    
-      Temp %=  1000;
-      Temp = abs(Temp);
-      Accelometer.y_Exponient = (int16_t)Temp;
 
-      Accelometer.z_Mantissa = (int8_t) Accelometer.z; 
-      Temp = (int32_t)(1000 * Accelometer.z);    
-      Temp %=  1000;
-      Temp = abs(Temp);
-      Accelometer.z_Exponient = (int16_t)Temp; 
-        p[12] = (int8_t)Accelometer.x_Mantissa;
-  p[13] = Accelometer.x_Exponient >> 8;
-  p[14] = Accelometer.x_Exponient;
-
-  p[15] = (int8_t)Accelometer.y_Mantissa;
-  p[16] = Accelometer.y_Exponient >> 8;
-  p[17] = Accelometer.y_Exponient; 
-
-  p[18] = (int8_t)Accelometer.z_Mantissa;
-  p[19] = Accelometer.z_Exponient >> 8;
-  p[20] = Accelometer.z_Exponient;
-  */
-}
-  int32_t GetMod_Float(float Acc){
-   if(Acc > 128)  return 1280000;
-   if(Acc < -128) return -1280000;
-   return (int32_t)(Acc*10000)  ;
-  }
-
+uint32_t DAQ_Tx_Counter = 0; 
 void DAQ_Send_Data(void){
+
 
   uint8_t *p;
   p = &DAQ.SendBuf[0];
@@ -88,13 +53,13 @@ void DAQ_Send_Data(void){
 
   //p[6] = RX_UI_ARR[2];
   //p[7] = RX_UI_ARR[3];
-
+/*
     long  randNumber = random(23, 27);
     DAQ.Voltage =  (uint16_t)randNumber; 
 
     randNumber = random(3, 5);
     DAQ.Current =  (uint16_t)randNumber; 
-
+*/
  //DAQ.Power = DAQ.Voltage * DAQ.Current;
    // DAQ.Voltage++;
   //  if(DAQ.Voltage > 55)DAQ.Voltage = 0;
@@ -123,10 +88,16 @@ void DAQ_Send_Data(void){
   p[13] = StopRamp.Val; 
   p[14] = VoltPercent.Val;
 
+  p[15] = (uint8_t)(DAQ_Tx_Counter >> 24); 
+  p[16] = (uint8_t)(DAQ_Tx_Counter >> 16); 
+  p[17] = (uint8_t)(DAQ_Tx_Counter >> 8); 
+  p[18] = DAQ_Tx_Counter ;
 
-  p[18] = temp;
-  p[19] = temp;
-  p[20] = temp;
+  DAQ_Tx_Counter++;
+  //p[18] = temp;
+  //p[19] = temp;
+  //p[20] = temp;
+
   //p[17] = Oled_Pos;
   //p[18] = Rled_Pos;
 
@@ -141,14 +112,14 @@ void DAQ_Send_Data(void){
   p[23] = RampUp>> 8;
   p[24] = RampUp;
     
-*/
+
     randNumber = random(25, 35);
     DAQ.Temperature = (float)randNumber; 
     randNumber = random(0, 9);
     float Tempf = (float)randNumber;
     DAQ.Temperature += (Tempf/10); 
       
-/*
+
   int32_t Temp = (int32_t)roundf(DAQ.Temperature *100);
   p[14] = (uint8_t)(Temp >> 24); 
   p[15] = (uint8_t)(Temp >> 16); 
@@ -156,32 +127,7 @@ void DAQ_Send_Data(void){
   p[17] = Temp ;
 */
 
-  /*
-   SendAcc_Data = GetMod_Float(Accelometer.z);
 
-  p[20] = SendAcc_Data >> 24;
-  p[21] = SendAcc_Data >> 16;
-  p[22] = SendAcc_Data >> 8;
-  p[23] = SendAcc_Data;
-
-  uint8_t* p2;
-  p2 =(uint8_t*) &Accelometer.x ;
-  p[24] = *p2;
-  p[25] = *p2++;
-  p[26] = *p2++;
-  p[27] = *p2++;//18
-  p2 =(uint8_t*) &Accelometer.y ;
-  p[28] = p2[0];
-  p[28] = p2[1];
-  p[30] = p2[2];
-  p[31] = p2[3];//18
-  p2 =(uint8_t*) &Accelometer.z ;
-  p[32] = p2[0];
-  p[33] = p2[1];
-  p[34] = p2[2];
-  p[35] = p2[3];//18
-
-  */
   DAQ.CRC_Send = DEFAULT_CRC_INIT;//2-14
   for(i=PREAMBLE_BYTES; i< (DEFAULT_TX_LENGTH-CRC_BYTES); i++){ // crc haric
     DAQ.CRC_Send ^= p[i];
@@ -194,22 +140,11 @@ void DAQ_Send_Data(void){
 
   
   p[DEFAULT_TX_LENGTH-2] = DAQ.CRC_Send >> 8;// DEFAULT_LENGTH-2
-  p[DEFAULT_TX_LENGTH-1] = DAQ.CRC_Send; // DEFAULT_LENGTH-1
-
-    /*
-        Serial.print("  p[16]"); Serial.print(p[20]); 
-        Serial.print("  p[17]"); Serial.print(p[21]);    
-  //    int16_t Acc = (int16_t)p[16]*256;
-  //    Acc += (int16_t)p[17];
-      int16_t Acc = p[16]*256;
-      Acc += p[17];
-       Serial.print(" Acc "); Serial.print(Acc); 
-       Serial.print(" SendAcc_Data "); Serial.print(SendAcc_Data);        
-       Serial.print(" Accelometer.z "); Serial.print(Accelometer.z);             
-       Serial.println();    
-       */         
+  p[DEFAULT_TX_LENGTH-1] = DAQ.CRC_Send; // DEFAULT_LENGTH-1       
 
   VS_Port.write(p,DEFAULT_TX_LENGTH); 
+
+
 }
 
  void SerialPortRx_UI() {
@@ -218,7 +153,7 @@ void DAQ_Send_Data(void){
       //while (Serial1.available()) {
     //    Serial.println("Serial");    
        if (VS_Port.available() > 0) {
-          #ifdef DEBUG_MODE
+          #ifdef DEBUG_MODE_COMM
         Serial.println();
          #endif
 /*         
@@ -237,14 +172,18 @@ void DAQ_Send_Data(void){
             VS_Port.flush();
             return;
         }        
-            #ifdef DEBUG_MODE
+            #ifdef DEBUG_MODE_COMM
         Serial.print(RX_UI_ARR[0],HEX);Serial.print("."); 
         Serial.print(RX_UI_ARR[1],HEX);Serial.print("."); 
+             #endif 
+
         for(j = PREAMBLE_BYTES; j < DEFAULT_RX_LENGTH ; j++) {
           RX_UI_ARR[j] =  VS_Port.read();
-          Serial.print(RX_UI_ARR[j],HEX);Serial.print(".");  
+             #ifdef DEBUG_MODE_COMM         
+          Serial.print(RX_UI_ARR[j],HEX);Serial.print("."); 
+              #endif  
         }
-                   #endif  
+                  
 
 
          uint16_t CrcRx_Calc =  RX_UI_ARR[DEFAULT_RX_LENGTH-2]<<8;      
@@ -252,11 +191,11 @@ void DAQ_Send_Data(void){
     //    Serial.print(F("."));Serial.print(CrcRx_Calc,HEX);
 
         DAQ.CRC_Calc_Receive = DEFAULT_CRC_INIT;//2-14
-        for(i=PREAMBLE_BYTES; i< (DEFAULT_TX_LENGTH-CRC_BYTES); i++){ // crc haric 2-62 0-63  62 63 CRC 
+        for(i=PREAMBLE_BYTES; i< (DEFAULT_RX_LENGTH-CRC_BYTES); i++){ // crc haric 2-62 0-63  62 63 CRC 
             DAQ.CRC_Calc_Receive ^= RX_UI_ARR[i];
         }
         DAQ.CRC_Calc_Receive <<= 8;
-        for(i=PREAMBLE_BYTES; i< (DEFAULT_TX_LENGTH-CRC_BYTES); i++){ // crc haric
+        for(i=PREAMBLE_BYTES; i< (DEFAULT_RX_LENGTH-CRC_BYTES); i++){ // crc haric
           DAQ.CRC_Calc_Receive ^= RX_UI_ARR[i];
         }
      //   Serial.print(F(" CRC "));Serial.print(DAQ.CRC_Calc_Receive,HEX);
@@ -265,7 +204,7 @@ void DAQ_Send_Data(void){
             Serial.println(F("CRC Mismatch "));
             VS_Port.flush();
 
-            for(j = 0; j < 64 ; j++) {
+            for(j = 0; j < SERIAL_RX_BUFFER_SIZE ; j++) {
               temp =  VS_Port.read(); 
             }
                return; 
@@ -314,7 +253,7 @@ void DAQ_Send_Data(void){
           S_Phase.Thyristor_Sim_Firing_Angle = R_Phase.Thyristor_Sim_Firing_Angle;
           T_Phase.Thyristor_Sim_Firing_Angle = R_Phase.Thyristor_Sim_Firing_Angle;
 
-                     #ifdef DEBUG_MODE          
+                     #ifdef DEBUG_MODE_COMM          
               Serial.println();
               Serial.print("Grid R S T ");Serial.print(R_Phase.GridEnable_UI);
               Serial.print("  Sim:");Serial.print(R_Phase.Thyristor_Sim_Firing);     
