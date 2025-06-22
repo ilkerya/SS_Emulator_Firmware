@@ -7,7 +7,7 @@ Use Master for WorkPC
 
 git add .
 git commit -m "Comment"
-git push https://github.com/ilkerya/Emulator_Firmware.git master
+git push https://github.com/ilkerya/SS_Emulator_Firmware.git Main/master
 
 First Time
 git init
@@ -54,7 +54,7 @@ https://reference.digilentinc.com/reference/instrumentation/analog-discovery-2/s
 //  https://github.com/ilkerya/Baracuda
 //  https://blog.plover.com/prog/git-ff-error.html
 // C:\Users\Yagciilk\Documents\Arduino\libraries
-// C:\Program Files (x86)\Arduino\libraries   
+// C:\Program Files (x86)\Arduino\libraries
 // C:\Projects\Pangolin\Baracuda\ArduinoCore\include  default AtmelStudio Project lib locations
 //for setting date&time open arduino serial monitor and send the data stream
 //   Year,Month,Date,Hour,Minute;Second
